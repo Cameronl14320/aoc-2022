@@ -1,4 +1,3 @@
-import { dir } from 'console';
 import * as fs from 'fs';
 
 const data = fs.readFileSync('./day-7/data.txt', "ascii");
