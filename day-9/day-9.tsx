@@ -39,11 +39,13 @@ class Knot {
     private visited: Location[];
     private head: Knot;
     private tail: Knot;
+    private length: number;
 
     public constructor(length: number, parent: Knot, startLocation: Location) {
         this.location = startLocation;
         this.visited = [startLocation];
         this.head = parent;
+        this.length = length;
 
         if (length > 0) {
             this.tail = new Knot(length - 1, this, startLocation);
@@ -76,47 +78,45 @@ class Knot {
 
     private follow(move: Move, newLoc: Location, childNo: number) {
         var currentDistance = this.getDistance(this.location, newLoc);
-        if (currentDistance >= 2) {
-            while(currentDistance >= 2) {
-                if (newLoc.y > this.location.y && newLoc.x === this.location.x) {
-                    console.log(`${childNo} : Up: ${this.location.x}, ${this.location.y}`);
-                    this.location = {x: this.location.x, y: this.location.y + 1}
-                } else if (newLoc.y < this.location.y && newLoc.x === this.location.x) {
-                    console.log(`${childNo} : Down: ${this.location.x}, ${this.location.y}`);
-                    this.location = {x: this.location.x, y: this.location.y - 1}
-                } else if (newLoc.x > this.location.x && newLoc.y === this.location.y) {
-                    console.log(`${childNo} : Right: ${this.location.x}, ${this.location.y}`);
-                    this.location = {x: this.location.x + 1, y: this.location.y}
-                } else if (newLoc.x < this.location.x && newLoc.y === this.location.y) {
-                    console.log(`${childNo} : Left: ${this.location.x}, ${this.location.y}`);
-                    this.location = {x: this.location.x - 1, y: this.location.y}
-                } else if (newLoc.y > this.location.y) {
-                    console.log(`${childNo} : Diagonal Up: ${this.location.x}, ${this.location.y}`);
-                    var offset = newLoc.x > this.location.x ? 1 : - 1
-                    this.location = {x: this.location.x + offset, y: this.location.y + 1};
-                } else if (newLoc.y < this.location.y) {
-                    console.log(`${childNo} : Diagonal Down: ${this.location.x}, ${this.location.y}`);
-                    var offset = newLoc.x > this.location.x ? 1 : - 1
-                    this.location = {x: this.location.x + offset, y: this.location.y - 1};
-                } else if (newLoc.x > this.location.x) {
-                    console.log(`${childNo} : Diagonal Right: ${this.location.x}, ${this.location.y}`);
-                    var offset = newLoc.y > this.location.y ? 1 : - 1
-                    this.location = {x: this.location.x + 1, y: this.location.y + offset};
-                } else if (newLoc.x < this.location.x) {
-                    console.log(`${childNo} : Diagonal Left: ${this.location.x}, ${this.location.y}`);
-                    var offset = newLoc.y > this.location.y ? 1 : - 1
-                    this.location = {x: this.location.x - 1, y: this.location.y + offset};
-                } else {
-                    console.log(`${childNo} : Diagonal Unknown: ${this.location.x}, ${this.location.y}`);
-                }
-                currentDistance = this.getDistance(this.location, newLoc);
-                this.visited.push(this.location);
+        while(currentDistance >= 2) {
+            if (newLoc.y > this.location.y && newLoc.x === this.location.x) {
+                // console.log(`${childNo} : Up: ${this.location.x}, ${this.location.y}`);
+                this.location = {x: this.location.x, y: this.location.y + 1}
+            } else if (newLoc.y < this.location.y && newLoc.x === this.location.x) {
+                // console.log(`${childNo} : Down: ${this.location.x}, ${this.location.y}`);
+                this.location = {x: this.location.x, y: this.location.y - 1}
+            } else if (newLoc.x > this.location.x && newLoc.y === this.location.y) {
+                // console.log(`${childNo} : Right: ${this.location.x}, ${this.location.y}`);
+                this.location = {x: this.location.x + 1, y: this.location.y}
+            } else if (newLoc.x < this.location.x && newLoc.y === this.location.y) {
+                // console.log(`${childNo} : Left: ${this.location.x}, ${this.location.y}`);
+                this.location = {x: this.location.x - 1, y: this.location.y}
+            } else if (newLoc.y > this.location.y) {
+                // console.log(`${childNo} : Diagonal Up: ${this.location.x}, ${this.location.y}`);
+                var offset = newLoc.x > this.location.x ? 1 : - 1
+                this.location = {x: this.location.x + offset, y: this.location.y + 1};
+            } else if (newLoc.y < this.location.y) {
+                // console.log(`${childNo} : Diagonal Down: ${this.location.x}, ${this.location.y}`);
+                var offset = newLoc.x > this.location.x ? 1 : - 1
+                this.location = {x: this.location.x + offset, y: this.location.y - 1};
+            } else if (newLoc.x > this.location.x) {
+                // console.log(`${childNo} : Diagonal Right: ${this.location.x}, ${this.location.y}`);
+                var offset = newLoc.y > this.location.y ? 1 : - 1
+                this.location = {x: this.location.x + 1, y: this.location.y + offset};
+            } else if (newLoc.x < this.location.x) {
+                // console.log(`${childNo} : Diagonal Left: ${this.location.x}, ${this.location.y}`);
+                var offset = newLoc.y > this.location.y ? 1 : - 1
+                this.location = {x: this.location.x - 1, y: this.location.y + offset};
+            } else {
+                // console.log(`${childNo} : Diagonal Unknown: ${this.location.x}, ${this.location.y}`);
             }
-            console.log(`${childNo} : Position : ${this.location.x}, ${this.location.y} `)
+            currentDistance = this.getDistance(this.location, newLoc);
+            this.visited.push(this.location);
+        }
+        console.log(`${childNo} : Position : ${this.location.x}, ${this.location.y} `)
 
-            if (!!this.tail) {
-                this.tail.follow(move, this.location, childNo + 1);
-            }
+        if (!!this.tail) {
+            this.tail.follow(move, this.location, childNo + 1);
         }
     }
 
@@ -126,7 +126,7 @@ class Knot {
 
     public getAllVisited(): Location[] {
         var allVisited: Location[] = [];
-        if (!!this.head) {
+        if (!!this.head && this.length === 0) {
             this.visited.forEach(location => allVisited.push(location));
         }
 
@@ -158,5 +158,5 @@ const sorted = visited.sort((a, b) => {
     return 0;
 })
 
-console.log(sorted);
+// console.log(sorted);
 console.log(visited.length);
