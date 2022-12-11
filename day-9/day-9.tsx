@@ -29,6 +29,13 @@ const moves: Move[] = data.split('\n').map(line => {
     }
 });
 
+const steps: Move[] = [];
+moves.forEach(move => {
+    for(let i = 0; i < move.steps; i++) {
+        steps.push({direction: move.direction, steps: 1});
+    }
+});
+
 type Location = {
     x: number;
     y: number;
@@ -55,16 +62,16 @@ class Knot {
     public execute(move: Move) {
         switch (move.direction) {
             case Direction.Up:
-                this.location = {x: this.location.x, y: this.location.y + move.steps}
+                this.location = { x: this.location.x, y: this.location.y + move.steps }
                 break;
             case Direction.Right:
-                this.location = {x: this.location.x + move.steps, y: this.location.y}
+                this.location = { x: this.location.x + move.steps, y: this.location.y }
                 break;
             case Direction.Down:
-                this.location = {x: this.location.x, y: this.location.y - move.steps}
+                this.location = { x: this.location.x, y: this.location.y - move.steps }
                 break;
             case Direction.Left:
-                this.location = {x: this.location.x - move.steps, y: this.location.y}
+                this.location = { x: this.location.x - move.steps, y: this.location.y }
                 break;
             default:
                 break;
@@ -78,42 +85,34 @@ class Knot {
 
     private follow(move: Move, newLoc: Location, childNo: number) {
         var currentDistance = this.getDistance(this.location, newLoc);
-        while(currentDistance >= 2) {
+        while (currentDistance >= 2) {
             if (newLoc.y > this.location.y && newLoc.x === this.location.x) {
-                // console.log(`${childNo} : Up: ${this.location.x}, ${this.location.y}`);
-                this.location = {x: this.location.x, y: this.location.y + 1}
+                this.location = { x: this.location.x, y: this.location.y + 1 }
             } else if (newLoc.y < this.location.y && newLoc.x === this.location.x) {
-                // console.log(`${childNo} : Down: ${this.location.x}, ${this.location.y}`);
-                this.location = {x: this.location.x, y: this.location.y - 1}
+                this.location = { x: this.location.x, y: this.location.y - 1 }
             } else if (newLoc.x > this.location.x && newLoc.y === this.location.y) {
-                // console.log(`${childNo} : Right: ${this.location.x}, ${this.location.y}`);
-                this.location = {x: this.location.x + 1, y: this.location.y}
+                this.location = { x: this.location.x + 1, y: this.location.y }
             } else if (newLoc.x < this.location.x && newLoc.y === this.location.y) {
-                // console.log(`${childNo} : Left: ${this.location.x}, ${this.location.y}`);
-                this.location = {x: this.location.x - 1, y: this.location.y}
+                this.location = { x: this.location.x - 1, y: this.location.y }
             } else if (newLoc.y > this.location.y) {
-                // console.log(`${childNo} : Diagonal Up: ${this.location.x}, ${this.location.y}`);
                 var offset = newLoc.x > this.location.x ? 1 : - 1
-                this.location = {x: this.location.x + offset, y: this.location.y + 1};
+                this.location = { x: this.location.x + offset, y: this.location.y + 1 };
             } else if (newLoc.y < this.location.y) {
-                // console.log(`${childNo} : Diagonal Down: ${this.location.x}, ${this.location.y}`);
                 var offset = newLoc.x > this.location.x ? 1 : - 1
-                this.location = {x: this.location.x + offset, y: this.location.y - 1};
+                this.location = { x: this.location.x + offset, y: this.location.y - 1 };
             } else if (newLoc.x > this.location.x) {
-                // console.log(`${childNo} : Diagonal Right: ${this.location.x}, ${this.location.y}`);
                 var offset = newLoc.y > this.location.y ? 1 : - 1
-                this.location = {x: this.location.x + 1, y: this.location.y + offset};
+                this.location = { x: this.location.x + 1, y: this.location.y + offset };
             } else if (newLoc.x < this.location.x) {
-                // console.log(`${childNo} : Diagonal Left: ${this.location.x}, ${this.location.y}`);
                 var offset = newLoc.y > this.location.y ? 1 : - 1
-                this.location = {x: this.location.x - 1, y: this.location.y + offset};
-            } else {
-                // console.log(`${childNo} : Diagonal Unknown: ${this.location.x}, ${this.location.y}`);
+                this.location = { x: this.location.x - 1, y: this.location.y + offset };
             }
             currentDistance = this.getDistance(this.location, newLoc);
             this.visited.push(this.location);
         }
-        console.log(`${childNo} : Position : ${this.location.x}, ${this.location.y} `)
+        if (this.length === 0) {
+            console.log(`${childNo} : Position : ${this.location.x}, ${this.location.y} `);
+        }
 
         if (!!this.tail) {
             this.tail.follow(move, this.location, childNo + 1);
@@ -121,7 +120,7 @@ class Knot {
     }
 
     private getDistance(locA: Location, locB: Location): number {
-        return Math.sqrt(Math.pow (locA.x-locB.x, 2) + Math.pow (locA.y-locB.y, 2));
+        return Math.sqrt(Math.pow(locA.x - locB.x, 2) + Math.pow(locA.y - locB.y, 2));
     }
 
     public getAllVisited(): Location[] {
@@ -142,9 +141,9 @@ class Knot {
     }
 }
 
-const start = {x: 0, y: 0};
+const start = { x: 0, y: 0 };
 const head = new Knot(9, null, start);
-moves.forEach(move => {
+steps.forEach(move => {
     head.execute(move);
 });
 const visited = head.getAllVisited();
@@ -156,7 +155,6 @@ const sorted = visited.sort((a, b) => {
         if (a.y > b.y) return 1;
     }
     return 0;
-})
+});
 
-// console.log(sorted);
 console.log(visited.length);
