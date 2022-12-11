@@ -29,19 +29,6 @@ const moves: Move[] = data.split('\n').map(line => {
     }
 });
 
-type Step = {
-    direction: Direction;
-}
-
-const steps: Step[] = [];
-moves.forEach(move => {
-    for (let i = 0; i < move.steps; i++) {
-        steps.push({
-            direction: move.direction
-        });
-    }
-});
-
 type Location = {
     x: number;
     y: number;
@@ -63,19 +50,19 @@ class Knot {
         }
     }
 
-    public execute(move: Step) {
+    public execute(move: Move) {
         switch (move.direction) {
             case Direction.Up:
-                this.location = {x: this.location.x, y: this.location.y + 1}
+                this.location = {x: this.location.x, y: this.location.y + move.steps}
                 break;
             case Direction.Right:
-                this.location = {x: this.location.x + 1, y: this.location.y}
+                this.location = {x: this.location.x + move.steps, y: this.location.y}
                 break;
             case Direction.Down:
-                this.location = {x: this.location.x, y: this.location.y - 1}
+                this.location = {x: this.location.x, y: this.location.y - move.steps}
                 break;
             case Direction.Left:
-                this.location = {x: this.location.x - 1, y: this.location.y}
+                this.location = {x: this.location.x - move.steps, y: this.location.y}
                 break;
             default:
                 break;
@@ -83,74 +70,52 @@ class Knot {
         this.visited.push(this.location);
 
         if (!!this.tail) {
-            this.tail.follow(move, this.location);
+            this.tail.follow(move, this.location, 1);
         }
     }
 
-    private follow(move: Step, newLoc: Location) {
+    private follow(move: Move, newLoc: Location, childNo: number) {
         var currentDistance = this.getDistance(this.location, newLoc);
         if (currentDistance >= 2) {
-            var newMove = move;
             while(currentDistance >= 2) {
-                if (currentDistance > 2) {
-                    switch (move.direction) {
-                        case Direction.Up:
-                            console.log(`Diagonal Up: ${this.location.x}, ${this.location.y}`);
-                            var offset = newLoc.x > this.location.x ? 1 : - 1
-                            this.location = {x: this.location.x + offset, y: this.location.y + 1};
-                            newMove = {direction: Direction.Up};
-                            break;
-                        case Direction.Right:
-                            console.log(`Diagonal Right: ${this.location.x}, ${this.location.y}`);
-                            var offset = newLoc.y > this.location.y ? 1 : - 1
-                            this.location = {x: this.location.x + 1, y: this.location.y + offset};
-                            newMove = {direction: Direction.Right};
-                            break;
-                        case Direction.Down:
-                            console.log(`Diagonal Down: ${this.location.x}, ${this.location.y}`);
-                            var offset = newLoc.x > this.location.x ? 1 : - 1
-                            this.location = {x: this.location.x + offset, y: this.location.y - 1};
-                            newMove = {direction: Direction.Down};
-                            break;
-                        case Direction.Left:
-                            console.log(`Diagonal Left: ${this.location.x}, ${this.location.y}`);
-                            var offset = newLoc.y > this.location.y ? 1 : - 1
-                            this.location = {x: this.location.x - 1, y: this.location.y + offset};
-                            newMove = {direction: Direction.Left};
-                            break;
-                        default:
-                            break;
-                    }
+                if (newLoc.y > this.location.y && newLoc.x === this.location.x) {
+                    console.log(`${childNo} : Up: ${this.location.x}, ${this.location.y}`);
+                    this.location = {x: this.location.x, y: this.location.y + 1}
+                } else if (newLoc.y < this.location.y && newLoc.x === this.location.x) {
+                    console.log(`${childNo} : Down: ${this.location.x}, ${this.location.y}`);
+                    this.location = {x: this.location.x, y: this.location.y - 1}
+                } else if (newLoc.x > this.location.x && newLoc.y === this.location.y) {
+                    console.log(`${childNo} : Right: ${this.location.x}, ${this.location.y}`);
+                    this.location = {x: this.location.x + 1, y: this.location.y}
+                } else if (newLoc.x < this.location.x && newLoc.y === this.location.y) {
+                    console.log(`${childNo} : Left: ${this.location.x}, ${this.location.y}`);
+                    this.location = {x: this.location.x - 1, y: this.location.y}
+                } else if (newLoc.y > this.location.y) {
+                    console.log(`${childNo} : Diagonal Up: ${this.location.x}, ${this.location.y}`);
+                    var offset = newLoc.x > this.location.x ? 1 : - 1
+                    this.location = {x: this.location.x + offset, y: this.location.y + 1};
+                } else if (newLoc.y < this.location.y) {
+                    console.log(`${childNo} : Diagonal Down: ${this.location.x}, ${this.location.y}`);
+                    var offset = newLoc.x > this.location.x ? 1 : - 1
+                    this.location = {x: this.location.x + offset, y: this.location.y - 1};
+                } else if (newLoc.x > this.location.x) {
+                    console.log(`${childNo} : Diagonal Right: ${this.location.x}, ${this.location.y}`);
+                    var offset = newLoc.y > this.location.y ? 1 : - 1
+                    this.location = {x: this.location.x + 1, y: this.location.y + offset};
+                } else if (newLoc.x < this.location.x) {
+                    console.log(`${childNo} : Diagonal Left: ${this.location.x}, ${this.location.y}`);
+                    var offset = newLoc.y > this.location.y ? 1 : - 1
+                    this.location = {x: this.location.x - 1, y: this.location.y + offset};
                 } else {
-                    console.log(`Diagonal: ${this.location.x}, ${this.location.y}`);
-                    switch (move.direction) {
-                        case Direction.Up:
-                            this.location = {x: this.location.x, y: this.location.y + 1};
-                            newMove = {direction: Direction.Up};
-                            break;
-                        case Direction.Right:
-                            this.location = {x: this.location.x + 1, y: this.location.y};
-                            newMove = {direction: Direction.Right};
-                            break;
-                        case Direction.Down:
-                            this.location = {x: this.location.x, y: this.location.y - 1};
-                            newMove = {direction: Direction.Down};
-                            break;
-                        case Direction.Left:
-                            this.location = {x: this.location.x - 1, y: this.location.y};
-                            newMove = {direction: Direction.Left};
-                            break;
-                        default:
-                            break;
-                    }
+                    console.log(`${childNo} : Diagonal Unknown: ${this.location.x}, ${this.location.y}`);
                 }
                 currentDistance = this.getDistance(this.location, newLoc);
+                this.visited.push(this.location);
             }
-            
-            this.visited.push(this.location);
+            console.log(`${childNo} : Position : ${this.location.x}, ${this.location.y} `)
 
             if (!!this.tail) {
-                this.tail.follow(newMove, this.location);
+                this.tail.follow(move, this.location, childNo + 1);
             }
         }
     }
@@ -179,9 +144,19 @@ class Knot {
 
 const start = {x: 0, y: 0};
 const head = new Knot(9, null, start);
-steps.forEach(step => {
-    head.execute(step);
+moves.forEach(move => {
+    head.execute(move);
 });
 const visited = head.getAllVisited();
+const sorted = visited.sort((a, b) => {
+    if (a.x < b.x) return -1;
+    if (a.x > b.x) return 1;
+    if (a.x === b.x) {
+        if (a.y < b.y) return -1;
+        if (a.y > b.y) return 1;
+    }
+    return 0;
+})
 
+console.log(sorted);
 console.log(visited.length);
