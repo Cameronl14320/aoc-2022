@@ -118,7 +118,6 @@ function getShortestPath(startLocations: [number, number][]): number[] {
                     current = [nextNode.location[0], nextNode.location[1]];
                 
                     if (current[0] === end[0] && current[1] === end[1]) {
-                        console.log(`Found path from [${startLocation[0]}, ${startLocation[1]}] to [${end[0]}, ${end[1]}]`);
                         break;
                     }
                 } else {
@@ -155,7 +154,6 @@ terrainExample.forEach(row => {
         }
     })
 });
-// console.log(startLocations.length);
 const part2 = getShortestPath(startLocations).filter(path => path != 0);
 part2.sort();
 console.log(part2);
